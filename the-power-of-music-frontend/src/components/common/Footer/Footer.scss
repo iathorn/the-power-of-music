@@ -1,0 +1,30 @@
+
+@import 'utils';
+
+.footer {
+    background: $oc-gray-6;
+    .footer-content {
+        height: 10rem;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        .brand {
+            color: white;
+            font-weight: 600;
+            font-size: 2rem;
+        }
+
+        .login {
+            margin-top: 0.5rem;
+            color: rgba(255,255,255,0.8);
+            font-weight: 500;
+            cursor: pointer;
+            &:hover {
+                color: white;
+            }
+
+        }
+    }
+}
