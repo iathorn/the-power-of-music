@@ -1,1 +1,72 @@
 
+@import 'utils';
+
+.post-list {
+    .post-item {
+        display: flex;
+        // align-items: center;
+        flex-direction: row;
+        .cover {
+            img {
+                width: 300px;
+
+                @include media("<medium") {
+                    width: 150px;
+                }
+
+                @include media("<large") {
+                    width: 200px;
+                }
+            }
+        }
+
+        
+        .post-content {
+            margin-bottom: 0.5rem;
+            margin-left: 0.5rem;
+            .title {
+                font-weight: 600;
+                font-size: 1.5rem;
+                @include media("<medium") {
+                    font-size: 1rem;
+                }
+            }
+    
+            .artist {
+                font-weight: 500;
+                @include media("<medium") {
+                    font-size: 0.5rem;
+                }
+            }
+    
+            .published-date {
+                font-size: 0.8rem;
+                margin-top: 1rem;
+                @include media("<medium") {
+                    font-size: 0.3rem;
+                }
+            }
+    
+            .body {
+                margin-top: 0.5rem;
+                @include media("<medium") {
+                    font-size: 0.5rem;
+                }
+            }
+           
+        }
+        
+
+        &:hover {
+            background: $oc-gray-3;
+        }
+
+    }
+
+    .post-item + .post-item {
+        border-top: 1px solid $oc-gray-3;
+    }
+
+   
+    
+}

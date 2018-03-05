@@ -11,6 +11,8 @@
     cursor: pointer;
     user-select: none;
     display: inline-flex;
+
+    background: $oc-teal-3;
     &.outline {
         background: $oc-teal-4;
         
@@ -24,6 +26,15 @@
             background: $oc-teal-6;
         }
 
+    }
+
+    &.disabled {
+        background: $oc-gray-3;
+        color: $oc-gray-6;
+        &:hover, &:active {
+            box-shadow: none;
+            background: $oc-gray-3;
+        }
     }
 
     &:hover {
