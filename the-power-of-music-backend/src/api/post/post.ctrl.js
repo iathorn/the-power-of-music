@@ -19,19 +19,31 @@ exports.checkObjectId = (req, res, next) => {
 // }
 exports.list = async (req, res) => {
     const page = parseInt(req.query.page || 1, 10);
+    const { tag } = req.query;
+
+    const query = tag ? {
+        tags: tag
+    } : {};
+
     if(page < 1) {
         return res.status(400);
     }
 
     try{
-        const posts = await Post.find()
+        const posts = await Post.find(query)
                                 .sort({_id: -1})
                                 .limit(10)
                                 .skip((page - 1) * 10)
                                 .lean()
                                 .exec();
-        const postCount = Post.count().exec();
-        res.json(posts);
+        const postCount = await Post.count(query).exec();
+        const limitBodyLength = post => ({
+            ...post,
+            body: post.body.length < 200 ? post.body : `${post.body.slice(0, 200)}...`
+        });
+
+        res.set('Last-Page', Math.ceil(postCount / 10));
+        res.json(posts.map(limitBodyLength));
     } catch(e){
         console.error(e);
         return res.status(500);
@@ -40,6 +52,7 @@ exports.list = async (req, res) => {
 
 exports.read = async (req, res) => {
     const { id } = req.params;
+    console.log(id);
 
     try {
         const post = await Post.findById(id).exec();

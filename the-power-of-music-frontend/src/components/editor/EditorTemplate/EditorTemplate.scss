@@ -5,10 +5,30 @@
   .panes {
     height: calc(100vh - 4rem); // 페이지 높이에서 EditorHeader 크기 빼기
     display: flex;
-    background: $oc-gray-1; // 임시
+    position: relative; 
     .pane {
       display: flex;
-      flex: 1; // 임시
+      min-width: 0;
+      overflow: auto;
+    }
+
+    @include media("<medium") {
+      .editor {
+        flex: 1!important;
+      }
+
+      .preview, .separator {
+        display: none;
+      }
+    }
+
+    .separator {
+      width: 1rem;
+      // background: black;
+      height: 100%;
+      position: absolute;
+      transform: translate(-50%);
+      cursor: col-resize;
     }
   }
 }

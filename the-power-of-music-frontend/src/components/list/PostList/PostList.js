@@ -2,10 +2,13 @@ import React from 'react';
 import styles from './PostList.scss';
 import classNames from 'classnames/bind';
 import { Link } from 'react-router-dom';
+import moment from 'moment';
+import removeMd from 'remove-markdown';
 
 const cx = classNames.bind(styles);
 
-const PostItem = () => {
+const PostItem = ({ title, body, publishedDate, tags, id }) => {
+  
   return (
     <div className={cx('post-item')}>
       <div className={cx('cover')}>
@@ -14,29 +17,45 @@ const PostItem = () => {
       </div>
       <div className={cx('post-content')}>
         <div className={cx('title')}>
-          제목
+          <Link to={`/post/${id}`}>{title}</Link>
         </div>
         <div className={cx('artist')}>
           by 음악가
         </div>
         <div className={cx('published-date')}>
-          2018-03-05
+          {moment(publishedDate).format('ll')}
         </div>
         <div className={cx('body')}>
-          Some Description....
+          {removeMd(body)}
         </div>
       </div>
     </div>
   );
 }
 
-const PostList = () => (
-  <div className={cx('post-list')}>
-    <PostItem/>
-    <PostItem/>
-    <PostItem/>
-    <PostItem/>
-  </div>
-);
+const PostList = ({posts}) => {
+  const postList = posts.map(
+    (post) => {
+      const { _id, title, body, publishedDate, tags } = post.toJS();
+      return (
+        <PostItem
+          title={title}
+          body={body}
+          publishedDate={publishedDate}
+          tags={tags}
+          key={_id}
+          id={_id}
+        />
+      )
+    }
+  );
+
+  return (
+    <div className={cx('post-list')}>
+      {postList}
+    </div>
+  )
+}
+
 
 export default PostList;
