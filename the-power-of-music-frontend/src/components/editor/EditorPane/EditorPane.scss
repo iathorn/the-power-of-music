@@ -6,6 +6,7 @@
   // 세로방향으로 내용 나열
   display: flex;
   flex-direction: column;
+  background: $oc-gray-8;
 
   .title {
     background: $oc-gray-7;
@@ -59,5 +60,49 @@
         color: rgba(255,255,255,0.75);
       }
     }
+  }
+
+  .tracks {
+    display: flex;
+    flex-direction: column;
+
+    .description {
+      background: $oc-gray-8;
+        font-size: 0.85rem;
+        color: white;
+        font-weight: 600;
+        
+
+    }
+
+
+    .button-wrapper {
+      background: $oc-gray-8;     
+      margin-left: auto;
+    }
+    
+    
+    .input-track-name {
+      background: $oc-gray-7;
+      border: none;
+      outline: none;
+      flex: 1;
+      font-size: 0.85rem;
+        color: white;
+        font-weight: 600;
+    }
+
+
+    .input-track-label {
+      background: $oc-gray-8;
+      font-weight: 600;
+      color: white;
+      cursor: pointer;
+      .input-track {
+        opacity: 0;
+      }
+    }
+
+    
   }
 }

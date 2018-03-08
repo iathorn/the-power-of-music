@@ -28,6 +28,21 @@
 
     }
 
+    &.gray {
+        background: $oc-gray-7;
+
+        border: 2px solid white;
+        border-radius: 2px;
+
+        font-size: 0.5rem;
+        &:hover {
+            background: $oc-gray-8;
+        }
+        &:active {
+            background: $oc-gray-9;
+        }
+    }
+
     &.disabled {
         background: $oc-gray-3;
         color: $oc-gray-6;

@@ -8,18 +8,21 @@ import * as api from 'lib/api';
 const INITIALIZE = 'editor/ACTION_NAME';
 const CHANGE_INPUT = 'editor/CHANGE_INPUT';
 const WRITE_POST = 'editor/WRITE_POST';
+const CHANGE_TRACK_FILE = 'editor/CHANGE_TRACK_FILE';
 
 // action creator
 export const initialize = createAction(INITIALIZE);
 export const changeInput = createAction(CHANGE_INPUT);
 export const writePost = createAction(WRITE_POST, api.writePost);
+export const changeTrackFile = createAction(CHANGE_TRACK_FILE);
 
 // initial state
 const initialState = Map({
     title: '',
     markdown: '',
     tags: '',
-    postId: null
+    postId: null,
+    trackFile: ''
 });
 
 // reducer
@@ -28,6 +31,10 @@ export default handleActions({
     [CHANGE_INPUT]: (state, action) => {
         const { name, value } = action.payload;
         return state.set(name, value);
+    },
+    [CHANGE_TRACK_FILE]: (state, action) => {
+        const { fileName } = action.payload;
+        return state.set('trackFile', fileName);
     },
     ...pender({
         type: WRITE_POST,

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import styles from './EditorPane.scss';
 import classNames from 'classnames/bind';
 import CodeMirror from 'codemirror';
@@ -14,12 +14,18 @@ import 'codemirror/mode/shell/shell';
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/theme/monokai.css';
 
+import Button from 'components/common/Button';
+
 const cx = classNames.bind(styles);
 
 class EditorPane extends Component {
   editor = null;
   codeMirror = null;
   cursor = null;
+
+  state = {
+    list: []
+  }
 
   initializeEditor = () => {
     this.codeMirror = CodeMirror(this.editor, {
@@ -30,6 +36,7 @@ class EditorPane extends Component {
     });
     this.codeMirror.on('change', this.handleChangeMarkdown);
   }
+
 
   componentDidMount() {
     this.initializeEditor();
@@ -50,6 +57,22 @@ class EditorPane extends Component {
     });
   }
 
+
+  handleFileChange = (e) => {
+    const { onChangeFile } = this.props;
+    const { list } = this.state;
+    this.setState({
+      list: list.concat({
+        name: e.target.files[0].name
+      })
+    });
+    onChangeFile({
+      fileName: e.target.files[0].name
+    });
+  }
+
+  
+
   componentDidUpdate(prevProps, prevState) {
     if(prevProps.markdown !== this.props.markdown) {
       const { codeMirror, cursor } = this;
@@ -60,8 +83,8 @@ class EditorPane extends Component {
     }
   }
   render() {
-    const { handleChange } = this;
-    const { title, tags } = this.props;
+    const { handleChange, handleFileChange } = this;
+    const { title, tags, trackFile } = this.props;
     return (
       <div className={cx('editor-pane')}>
         <input 
@@ -78,6 +101,33 @@ class EditorPane extends Component {
             placeholder="태그를 입력하세요 (쉼표로 구분)"
             value={tags}
             onChange={handleChange}/>
+        </div>
+        <div id="tracks" className={cx('tracks')}>
+          <div className={cx('description')}>
+          트랙 파일
+          
+          </div>
+          <div className={cx('button-wrapper')}>
+            <Button theme="gray">트랙 추가</Button>
+          </div>
+          
+          <input 
+            type="text" 
+            name="track-name" 
+            placeholder="트랙의 제목을 입력해주세요."
+            className={cx('input-track-name')}/>
+            <label className={cx('input-track-label')}>
+            {
+              trackFile !== "" ? trackFile : "클릭하여 트랙 파일을 첨부해주세요."
+            }
+              <input 
+              type="file" 
+              name="track" 
+              accept=".mp3"
+              className={cx('input-track')}
+              onChange={handleFileChange}/>
+            </label>
+          
         </div>
       </div>
     );
