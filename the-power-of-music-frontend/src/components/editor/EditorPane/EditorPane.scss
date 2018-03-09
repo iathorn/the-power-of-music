@@ -48,6 +48,8 @@
       margin-right: 1rem;
     }
 
+  
+
     input {
       font-size: 0.85rem;
       border: none;
@@ -62,9 +64,22 @@
     }
   }
 
+  .close-track {
+    color: white;
+    cursor: pointer;
+  }
+
+  .open-track {
+    color: white;
+    cursor: pointer;
+  }
+
   .tracks {
     display: flex;
     flex-direction: column;
+
+
+    
 
     .description {
       background: $oc-gray-8;
@@ -78,7 +93,20 @@
 
     .button-wrapper {
       background: $oc-gray-8;     
-      margin-left: auto;
+      // margin-left: auto;
+
+      .input-track-label {
+        background: $oc-gray-8;
+        font-weight: 600;
+        color: white;
+        cursor: pointer;
+        .input-track {
+          opacity: 0;
+        }
+    }
+
+    .track-list {
+      color: white;
     }
     
     
@@ -93,14 +121,7 @@
     }
 
 
-    .input-track-label {
-      background: $oc-gray-8;
-      font-weight: 600;
-      color: white;
-      cursor: pointer;
-      .input-track {
-        opacity: 0;
-      }
+    
     }
 
     

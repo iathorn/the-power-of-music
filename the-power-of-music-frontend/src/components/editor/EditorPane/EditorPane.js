@@ -19,12 +19,16 @@ import Button from 'components/common/Button';
 const cx = classNames.bind(styles);
 
 class EditorPane extends Component {
+
+  id = 0;
+
   editor = null;
   codeMirror = null;
   cursor = null;
 
   state = {
-    list: []
+    list: [],
+    trackListVisible: true
   }
 
   initializeEditor = () => {
@@ -61,14 +65,42 @@ class EditorPane extends Component {
   handleFileChange = (e) => {
     const { onChangeFile } = this.props;
     const { list } = this.state;
-    this.setState({
-      list: list.concat({
-        name: e.target.files[0].name
-      })
-    });
+    if(e.target.files[0]) {
+      this.setState({
+        list: list.concat({
+          id: this.id++,
+          name: e.target.files[0].name
+        })
+      });
+    } else {
+      return;
+    }
+    
     onChangeFile({
       fileName: e.target.files[0].name
     });
+    // console.log(e.target.files[0]);
+  }
+
+  handleTrackListVisible = () => {
+    const { trackListVisible } = this.state;
+    this.setState({
+      trackListVisible: !trackListVisible
+    });
+  }
+
+  handleTrackListRemove = (e, id) => {
+    const { list } = this.state;
+    this.setState({
+      list: list.filter(list => list.id !== parseInt(e.target.id, 10))
+    });
+    list.filter(track => {
+      console.log(track.id);
+      console.log(track.id === parseInt(e.target.id, 10));
+    })
+    
+    console.log(e.target.id);
+    
   }
 
   
@@ -83,8 +115,29 @@ class EditorPane extends Component {
     }
   }
   render() {
-    const { handleChange, handleFileChange } = this;
+    const { handleChange, handleFileChange, handleTrackListVisible, handleTrackListRemove } = this;
+    const { list, trackListVisible } = this.state;
     const { title, tags, trackFile } = this.props;
+
+    const trackListVisibleStyle = {
+      display: "block"
+    };
+
+    const trackListNonVisibleStyle = {
+      display: "none"
+    };
+
+    const mapToTrackList = trackList => {
+      return trackList.map((track, i) => {
+        return (<div className={cx('track-list')}
+                      key={i}
+                      id={track.id}
+                      >
+                {i + 1}: {track.name}
+                <Button id={track.id} theme="gray" onClick={handleTrackListRemove}>&#x2715;</Button>
+               </div>);
+      });
+    }
     return (
       <div className={cx('editor-pane')}>
         <input 
@@ -102,32 +155,42 @@ class EditorPane extends Component {
             value={tags}
             onChange={handleChange}/>
         </div>
-        <div id="tracks" className={cx('tracks')}>
+        {
+            trackListVisible ? <div 
+                                className={cx('close-track')}
+                                onClick={handleTrackListVisible}>
+                                트랙파일 닫기
+                              </div> : <div 
+                                        className={cx('open-track')}
+                                        onClick={handleTrackListVisible}>
+                                          트랙파일 열기
+                                        </div>
+          }
+        <div 
+          id="tracks" 
+          className={cx('tracks')} 
+          style={trackListVisible ? trackListVisibleStyle : trackListNonVisibleStyle}>
+         
           <div className={cx('description')}>
           트랙 파일
-          
           </div>
           <div className={cx('button-wrapper')}>
-            <Button theme="gray">트랙 추가</Button>
-          </div>
-          
-          <input 
-            type="text" 
-            name="track-name" 
-            placeholder="트랙의 제목을 입력해주세요."
-            className={cx('input-track-name')}/>
+            {/* <Button theme="gray">트랙 추가</Button> */}
             <label className={cx('input-track-label')}>
-            {
-              trackFile !== "" ? trackFile : "클릭하여 트랙 파일을 첨부해주세요."
-            }
-              <input 
+            클릭하여 트랙 파일을 첨부해주세요.
+            <input 
               type="file" 
               name="track" 
               accept=".mp3"
               className={cx('input-track')}
               onChange={handleFileChange}/>
             </label>
-          
+            <div className={cx('track-list')}>
+            {
+              mapToTrackList(list)
+            }
+            </div>
+          </div>
         </div>
       </div>
     );
