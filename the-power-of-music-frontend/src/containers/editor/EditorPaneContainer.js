@@ -15,17 +15,24 @@ class EditorPaneContainer extends Component {
         const { EditorActions } = this.props;
         EditorActions.changeTrackFile({fileName});
     }
+
+    handleCoverFile = ({fileName}) => {
+        const { EditorActions } = this.props;
+        EditorActions.changeCoverFile({fileName});
+    }
     render() {
-        const {title, markdown, tags, trackFile} = this.props;
-        const { handleChangeInput, handleChangeFile } = this;
+        const {title, markdown, tags, trackFile, coverFile} = this.props;
+        const { handleChangeInput, handleChangeFile, handleCoverFile } = this;
         return (
             <EditorPane
                 title={title}
                 markdown={markdown}
                 tags={tags}
                 trackFile={trackFile}
+                coverFile={coverFile}
                 onChangeInput={handleChangeInput}
-                onChangeFile={handleChangeFile}/>
+                onChangeFile={handleChangeFile}
+                onChangeCover={handleCoverFile}/>
         );
     }
 }
@@ -40,7 +47,8 @@ export default connect((state) => ({
     tags: state
         .editor
         .get('tags'),
-    trackFile: state.editor.get('trackFile')
+    trackFile: state.editor.get('trackFile'),
+    coverFile: state.editor.get('coverFile')
 }), (dispatch) => ({
     EditorActions: bindActionCreators(editorActions, dispatch)
 }))(EditorPaneContainer);

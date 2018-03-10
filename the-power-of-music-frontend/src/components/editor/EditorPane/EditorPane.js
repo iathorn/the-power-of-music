@@ -18,9 +18,11 @@ import Button from 'components/common/Button';
 
 const cx = classNames.bind(styles);
 
+
 class EditorPane extends Component {
 
   id = 0;
+  coverId = 0;
 
   editor = null;
   codeMirror = null;
@@ -28,7 +30,8 @@ class EditorPane extends Component {
 
   state = {
     list: [],
-    trackListVisible: true
+    trackListVisible: true,
+    cover: []
   }
 
   initializeEditor = () => {
@@ -82,6 +85,29 @@ class EditorPane extends Component {
     // console.log(e.target.files[0]);
   }
 
+  handleCoverChange = (e) => {
+    const { onChangeCover } = this.props;
+    const { cover } = this.state;
+    if(e.target.files[0]) {
+      if(cover.length >= 1) {
+        alert("커버 사진은 한장만 가능합니다.");
+        return;
+      }
+      this.setState({
+        cover: cover.concat({
+          id: this.coverId++,
+          name: e.target.files[0].name
+        })
+      });
+    } else {
+      return;
+    }
+    onChangeCover({
+      fileName: e.target.files[0].name
+    });
+    console.log(e.target.files[0]);
+  }
+
   handleTrackListVisible = () => {
     const { trackListVisible } = this.state;
     this.setState({
@@ -94,15 +120,17 @@ class EditorPane extends Component {
     this.setState({
       list: list.filter(list => list.id !== parseInt(e.target.id, 10))
     });
-    list.filter(track => {
-      console.log(track.id);
-      console.log(track.id === parseInt(e.target.id, 10));
-    })
-    
-    console.log(e.target.id);
+
     
   }
-
+  
+  handleCoverRemove = (e, id) => {
+    const { cover } = this.state;
+    this.setState({
+      cover: cover.filter(cover => cover.id !== parseInt(e.target.id, 10))
+    });
+    console.log(e.target.id);
+  }
   
 
   componentDidUpdate(prevProps, prevState) {
@@ -115,8 +143,13 @@ class EditorPane extends Component {
     }
   }
   render() {
-    const { handleChange, handleFileChange, handleTrackListVisible, handleTrackListRemove } = this;
-    const { list, trackListVisible } = this.state;
+    const { handleChange, 
+            handleFileChange,
+            handleTrackListVisible, 
+            handleTrackListRemove,
+            handleCoverChange,
+            handleCoverRemove } = this;
+    const { list, trackListVisible, cover } = this.state;
     const { title, tags, trackFile } = this.props;
 
     const trackListVisibleStyle = {
@@ -138,6 +171,21 @@ class EditorPane extends Component {
                </div>);
       });
     }
+
+    const mapToCoverList = coverList => {
+      return coverList.map((cover, i) => {
+        return (<div className={cx('track-list')}
+                    key={i}
+                    id={cover.id}>
+                    {cover.name}
+                <Button id={cover.id} theme="gray" onClick={handleCoverRemove}>&#x2715;</Button>
+              </div>)
+      })
+    }
+
+    
+
+    
     return (
       <div className={cx('editor-pane')}>
         <input 
@@ -159,18 +207,38 @@ class EditorPane extends Component {
             trackListVisible ? <div 
                                 className={cx('close-track')}
                                 onClick={handleTrackListVisible}>
-                                트랙파일 닫기
+                                파일 첨부 닫기
                               </div> : <div 
                                         className={cx('open-track')}
                                         onClick={handleTrackListVisible}>
-                                          트랙파일 열기
+                                          파일 첨부 열기
                                         </div>
           }
         <div 
           id="tracks" 
           className={cx('tracks')} 
           style={trackListVisible ? trackListVisibleStyle : trackListNonVisibleStyle}>
-         
+         <div className={cx('description')}>
+          앨범 커버 파일
+          </div>
+          <div className={cx('button-wrapper')}>
+            {/* <Button theme="gray">트랙 추가</Button> */}
+            <label className={cx('input-track-label')}>
+            클릭하여 커버 파일을 첨부해주세요.(jpg or png)
+            <input 
+              type="file" 
+              name="track" 
+              accept=".jpg, .jpeg, .png"
+              className={cx('input-track')}
+              onChange={handleCoverChange}/>
+            </label>
+            <div className={cx('track-list')}>
+            {
+              mapToCoverList(cover)
+            }
+            
+            </div>
+          </div>
           <div className={cx('description')}>
           트랙 파일
           </div>
