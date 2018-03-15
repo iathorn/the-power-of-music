@@ -18,8 +18,14 @@ const app = express();
 const api = require('./api');
 
 app.use(logger('dev'));
-app.use(cookieParser());
 app.use(bodyParser.json());
+app.use(cookieParser());
+app.use(session({
+    secret: sessionSecret,
+    resave: false,
+    saveUninitialized: true
+}));
+
 app.use(jwtMiddleware);
 
 const mongoose = require('mongoose');
@@ -32,13 +38,9 @@ mongoose.connect(mongoURI).then(() => {
 });
 
 
-app.use(session({
-    secret: sessionSecret,
-    resave: false,
-    saveUninitialized: true
-}));
 
-app.use(express.static(path.join(__dirname, './uploads')));
+
+app.use('/uploads', express.static(path.join(__dirname, './uploads')));
 app.use('/api', api);
 
 

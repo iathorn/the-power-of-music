@@ -6,11 +6,16 @@ import MarkdownRender from '../../common/MarkdownRender/MarkdownRender';
 
 const cx = classNames.bind(styles);
 
-const PostBody = ({body}) => (
+const PostBody = ({title, body, cover, list, publishedDate, artist}) => (
   <div className={cx('post-body')}>
     <div className={cx('paper')}>
       
-      <AudioPlayer/>
+      <AudioPlayer 
+        title={title} 
+        cover={cover}
+        artist={artist} 
+        list={list} 
+        publishedDate={publishedDate}/>
       <MarkdownRender markdown={body}/>
     </div>
   </div>

@@ -4,8 +4,20 @@ import { connect } from 'react-redux';
 import * as editorActions from 'store/modules/editor';
 import EditorHeader from 'components/editor/EditorHeader';
 import { withRouter } from 'react-router-dom';
+import queryString from 'query-string';
 
 class EditorHeaderContainer extends Component {
+
+
+    componentDidMount() {
+        const { EditorActions, location } = this.props;
+        EditorActions.initialize();
+
+        const { id } = queryString.parse(location.search);
+        if(id) {
+            EditorActions.getPost(id);
+        }
+    }
 
     handleGoBack = () => {
         const { history } = this.props;
@@ -14,13 +26,33 @@ class EditorHeaderContainer extends Component {
 
 
     handleSubmit = async () => {
-        const { title, markdown, tags, history } = this.props;
+        const { title, 
+                markdown, 
+                tags, 
+                history, 
+                uploadedTrackList, 
+                uploadedCover,
+                artist } = this.props;
         const { EditorActions } = this.props;
+        const trackNameArray = [];
+        const trackCount = document.getElementsByName('track-name').length;
+        
+        for(let i = 0;i<trackCount;i++) {
+            trackNameArray.push(document.getElementsByName('track-name')[i].value);
+        };
+
         const post = {
             title,
             body: markdown,
-            tags: tags === "" ? [] : [...new Set(tags.split(', ').map(tag => tag.trim()))]
+            tags: tags === "" ? [] : [...new Set(tags.split(', ').map(tag => tag.trim()))],
+            trackName: trackNameArray,
+            uploadedTrackList: uploadedTrackList,
+            uploadedCover: uploadedCover,
+            artist: artist
         };
+
+
+
         try {
             await EditorActions.writePost(post);
             history.push(`/post/${this.props.postId}`)
@@ -29,12 +61,15 @@ class EditorHeaderContainer extends Component {
         }
     }
 
+
+
  render() {
      const { handleGoBack, handleSubmit } = this;
    return (
     <EditorHeader
         onGoBack={handleGoBack}
-        onSubmit={handleSubmit}/>
+        onSubmit={handleSubmit}
+        onTest={this.handleTest}/>
    );
  }
 }
@@ -44,7 +79,10 @@ export default connect(
       postId: state.editor.get('postId'),
       title: state.editor.get('title'),
       markdown: state.editor.get('markdown'),
-      tags: state.editor.get('tags')
+      tags: state.editor.get('tags'),
+      uploadedTrackList: state.editor.get('uploadedTrackList'),
+      uploadedCover: state.editor.get('uploadedCover'),
+      artist: state.editor.get('artist'),
   }),
   (dispatch) => ({
     EditorActions: bindActionCreators(editorActions, dispatch)

@@ -21,7 +21,12 @@
     }
 
     @include media("<medium") {
-        width: 280px;
+        width: 250px;
+        margin: 0 auto;
+    }
+
+    @include media("<=small") {
+        width: 150px;
         margin: 0 auto;
     }
     
@@ -62,9 +67,11 @@
         }
 
         .track {
-            
+            cursor: pointer;
             padding-bottom: 1rem;
             padding-top: 1rem;
+            padding-left: 1rem;
+            padding-right: 1rem;
             display: flex;
             flex-direction: row;
             .track-number {
@@ -81,31 +88,64 @@
             }
         }
 
+        .player-indicator + .track {
+            margin-top: 1rem;
+        }
+
         .player-indicator {
             display: flex;
             flex-direction: row;
-            .play {
 
+            .play {
+                
+                justify-content: center;
+                align-items: center;
+                font-size: 1.35rem;
+                margin-right: 0.5rem;
             }
 
             .bar {
                 background: $oc-gray-4;
                 flex: 1;
                 margin-left: 0.5rem;
-                margin-right: 0.5rem;
+                margin-right: 1.3rem;
+                .played {
+                    background: black;
+                    width: 0%;
+                    height: 1.6rem;
+                    z-index: 2;
+
+                    @include media(">wide") {
+                        height: 2.2rem;
+                    }
+
+                    @include media("<medium") {
+                        height: 2.1rem;
+                    }
+                }
+                // padding-right: 1.5rem;
                 .touch-square {
                     position: relative;
-                    width: 1rem;
+                    width: 1.5rem;
                     height: 1.5rem;
                     border: 2px solid $oc-gray-7;
-                    left: 50%;
+                    // left: 50%;
                     background: $oc-blue-4;
+                    border-radius: 50%;
+                    cursor: pointer;
+                    transform: translateX(-50%);
                     
+                    @include media("<medium") {
+                        margin-top: 0.3rem;
+                    }
                 }
             }
 
             .volume {
                 margin-left: auto;
+                justify-content: center;
+                align-items: center;
+                font-size: 1.35rem;
             }
         }
 

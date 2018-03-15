@@ -1,6 +1,9 @@
 const Post = require('models/post');
 const Joi = require('joi');
 
+
+
+
 const {ObjectId} = require('mongoose').Types;
 
 exports.checkObjectId = (req, res, next) => {
@@ -14,9 +17,13 @@ exports.checkObjectId = (req, res, next) => {
 }
 
 
-// exports.checkLogin = (req, res, next) => {
-//     if(!req.session.)
-// }
+exports.checkLogin = (req, res, next) => {
+    if(!req.session.logged) {
+        res.status(401);
+        return null;
+    }
+    return next();
+}
 exports.list = async (req, res) => {
     const page = parseInt(req.query.page || 1, 10);
     const { tag } = req.query;
@@ -52,7 +59,6 @@ exports.list = async (req, res) => {
 
 exports.read = async (req, res) => {
     const { id } = req.params;
-    console.log(id);
 
     try {
         const post = await Post.findById(id).exec();
@@ -69,29 +75,38 @@ exports.read = async (req, res) => {
 
 exports.write = async (req, res) => {
 
+    console.log(req.body);
+    console.log(req.files);
+
+    const { title, body, tags, trackName, uploadedTrackList, uploadedCover, artist } = req.body;
+
     try {
-        await Joi.validate(req.body.title, Joi.string().required());
-        await Joi.validate(req.body.body, Joi.string().required());
-        await Joi.validate(req.body.cover, Joi.string().required());
-        await Joi.validate(req.body.list, Joi.array().items(Joi.object().keys({
-            name: Joi.string().required(),
-            track: Joi.string().required()
-            })).required());
-        await Joi.array().items(Joi.string()).required();
+        await Joi.validate(title, Joi.string().required());
+        await Joi.validate(body, Joi.string().required());
+        await Joi.validate(tags, Joi.array().items(Joi.string()).required());
+        await Joi.validate(trackName, Joi.array().items(Joi.string()).required());
+        await Joi.validate(uploadedTrackList, Joi.array().items(Joi.string()).required());
+        await Joi.validate(uploadedCover, Joi.string().required());
+        await Joi.validate(artist, Joi.string().required());
     } catch(e){
+        console.log(e);
         return res.status(400).json({
             error: e
         });
     }
 
-    const { title, body, cover, list, tags } = req.body;
+    
 
 
     const post = new Post({
         title,
         body,
-        cover,
-        list,
+        cover: uploadedCover,
+        artist,
+        list: {
+            name: trackName,
+            track: uploadedTrackList
+        },
         tags
     });
 
@@ -104,6 +119,15 @@ exports.write = async (req, res) => {
         return res.status(500);
     }
     
+}
+
+exports.ajaxUpload = async (req, res) => {
+    return res.json(req.files);
+
+}
+
+exports.ajaxCoverUpload = async (req, res) => {
+    return res.json(req.files);
 }
 
 exports.update = async (req, res) => {
@@ -125,10 +149,12 @@ exports.update = async (req, res) => {
 
 exports.remove = async (req, res) => {
     const { id } = req.params;
-
     try {
         await Post.findByIdAndRemove(id).exec();
         res.status(204);
+        return res.json({
+            success: true
+        });
     } catch(e){
         console.error(e);
         return res.status(500);

@@ -22,11 +22,17 @@ class Post extends Component {
  render() {
      const { loading, post } = this.props;
      if(loading) return null;
-     const { title, body, publishedDate, tags } = post.toJS();
+     const { title, body, publishedDate, tags, cover, list, artist } = post.toJS();
    return (
         <div>
             <PostInfo title={title} body={body} publishedDate={publishedDate} tags={tags}/>
-            <PostBody body={body}/>
+            <PostBody 
+                title={title} 
+                body={body} 
+                cover={cover} 
+                artist={artist}
+                list={list} 
+                publishedDate={publishedDate}/>
         </div>
    );
  }

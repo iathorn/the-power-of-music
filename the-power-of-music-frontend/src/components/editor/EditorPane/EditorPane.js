@@ -16,10 +16,13 @@ import 'codemirror/theme/monokai.css';
 
 import Button from 'components/common/Button';
 
+import axios from 'axios';
 const cx = classNames.bind(styles);
-
+const $ = window.$;
 
 class EditorPane extends Component {
+
+
 
   id = 0;
   coverId = 0;
@@ -47,6 +50,8 @@ class EditorPane extends Component {
 
   componentDidMount() {
     this.initializeEditor();
+   
+    
   }
 
   handleChange = (e) => {
@@ -66,7 +71,7 @@ class EditorPane extends Component {
 
 
   handleFileChange = (e) => {
-    const { onChangeFile } = this.props;
+    const { onChangeFile, onAjaxUpload } = this.props;
     const { list } = this.state;
     if(e.target.files[0]) {
       this.setState({
@@ -74,6 +79,7 @@ class EditorPane extends Component {
           id: this.id++,
           name: e.target.files[0].name
         })
+        
       });
     } else {
       return;
@@ -82,11 +88,27 @@ class EditorPane extends Component {
     onChangeFile({
       fileName: e.target.files[0].name
     });
+
+    const formData = new FormData();
+    formData.append('track', e.target.files[0]);
+
+    const config = {
+      headers: {
+        'content-type': 'multipart/form-data'
+      }
+    };
+ 
+    onAjaxUpload(formData, config);
+
+
+
+  
+
     // console.log(e.target.files[0]);
   }
 
   handleCoverChange = (e) => {
-    const { onChangeCover } = this.props;
+    const { onChangeCover, onAjaxCoverUpload } = this.props;
     const { cover } = this.state;
     if(e.target.files[0]) {
       if(cover.length >= 1) {
@@ -105,7 +127,18 @@ class EditorPane extends Component {
     onChangeCover({
       fileName: e.target.files[0].name
     });
-    console.log(e.target.files[0]);
+
+    const formData = new FormData();
+    formData.append('cover', e.target.files[0]);
+
+    const config = {
+      headers: {
+        'content-type': 'multipart/form-data'
+      }
+    };
+
+    onAjaxCoverUpload(formData, config);
+    
   }
 
   handleTrackListVisible = () => {
@@ -117,9 +150,12 @@ class EditorPane extends Component {
 
   handleTrackListRemove = (e, id) => {
     const { list } = this.state;
+    const { onAjaxRemove } = this.props;
     this.setState({
       list: list.filter(list => list.id !== parseInt(e.target.id, 10))
     });
+
+    // onAjaxRemove(parseInt(e.target.id, 10));
 
     
   }
@@ -131,7 +167,10 @@ class EditorPane extends Component {
     });
     console.log(e.target.id);
   }
-  
+
+
+
+
 
   componentDidUpdate(prevProps, prevState) {
     if(prevProps.markdown !== this.props.markdown) {
@@ -141,6 +180,7 @@ class EditorPane extends Component {
       if(!cursor) return; // 커서가 없는 경우
       codeMirror.setCursor(cursor);
     }
+
   }
   render() {
     const { handleChange, 
@@ -148,9 +188,10 @@ class EditorPane extends Component {
             handleTrackListVisible, 
             handleTrackListRemove,
             handleCoverChange,
-            handleCoverRemove } = this;
+            handleCoverRemove
+             } = this;
     const { list, trackListVisible, cover } = this.state;
-    const { title, tags, trackFile } = this.props;
+    const { title, tags, trackList, artist, uploadedTrackList } = this.props;
 
     const trackListVisibleStyle = {
       display: "block"
@@ -167,7 +208,10 @@ class EditorPane extends Component {
                       id={track.id}
                       >
                 {i + 1}: {track.name}
-                <Button id={track.id} theme="gray" onClick={handleTrackListRemove}>&#x2715;</Button>
+                {/* <Button id={track.id} theme="gray" onClick={handleTrackListRemove}>&#x2715;</Button> */}
+                <div className={cx('track-name')}>
+                  <input type="text" name="track-name" placeholder="트랙 이름을 작성해주세요."/>
+                </div>
                </div>);
       });
     }
@@ -178,7 +222,7 @@ class EditorPane extends Component {
                     key={i}
                     id={cover.id}>
                     {cover.name}
-                <Button id={cover.id} theme="gray" onClick={handleCoverRemove}>&#x2715;</Button>
+                {/* <Button id={cover.id} theme="gray" onClick={handleCoverRemove}>&#x2715;</Button> */}
               </div>)
       })
     }
@@ -190,9 +234,15 @@ class EditorPane extends Component {
       <div className={cx('editor-pane')}>
         <input 
           className={cx('title')} 
-          placeholder="제목을 입력하세요" 
+          placeholder="앨범 타이틀을 입력하세요" 
           name="title"
           value={title}
+          onChange={handleChange}/>
+          <input 
+          className={cx('artist')} 
+          placeholder="아티스트 이름을 입력하세요" 
+          name="artist"
+          value={artist}
           onChange={handleChange}/>
         <div className={cx('code-editor')} ref={ref=>this.editor=ref}></div>
         <div className={cx('tags')}>
@@ -227,7 +277,7 @@ class EditorPane extends Component {
             클릭하여 커버 파일을 첨부해주세요.(jpg or png)
             <input 
               type="file" 
-              name="track" 
+              name="cover" 
               accept=".jpg, .jpeg, .png"
               className={cx('input-track')}
               onChange={handleCoverChange}/>
@@ -242,8 +292,7 @@ class EditorPane extends Component {
           <div className={cx('description')}>
           트랙 파일
           </div>
-          <div className={cx('button-wrapper')}>
-            {/* <Button theme="gray">트랙 추가</Button> */}
+          <div id="button-wrapper" className={cx('button-wrapper')}>
             <label className={cx('input-track-label')}>
             클릭하여 트랙 파일을 첨부해주세요.
             <input 

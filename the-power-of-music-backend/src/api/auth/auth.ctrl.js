@@ -90,17 +90,19 @@ exports.login = async (req, res) => {
 exports.adminLogin = (req, res) => {
     const { password } = req.body;
     if(adminPass === password) {
-        res.json({
+        
+        req.session.logged = true;
+        return res.json({
             success: true
         });
-        req.session.logged = true;
-
     } else {
-        res.json({
+        res.status(401);
+        return res.json({
             success: false
         });
-        return res.status(401);
     }
+
+    
 }
 
 exports.logout = (req, res) => {
@@ -112,8 +114,11 @@ exports.logout = (req, res) => {
 }
 
 exports.adminLogout = (req, res) => {
-    req.session = null;
+    req.session.logged = false;
     res.status(204);
+    return res.json({
+        success: true
+    });
 }
 
 exports.checkLogin = (req, res) => {

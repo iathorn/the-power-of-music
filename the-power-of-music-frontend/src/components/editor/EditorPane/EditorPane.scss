@@ -21,6 +21,19 @@
     }
   }
 
+  .artist {
+    background: $oc-gray-8;
+    border: none;
+    outline: none;
+    font-size: 1rem;
+    padding: 0.5rem;
+    color: white;
+    font-weight: 500;
+    &::placeholder {
+      color: rgba(255,255,255,0.75);
+    }
+  }
+
   .code-editor {
     flex: 1; // 남는 영역 다 차지하기
     background: $oc-gray-9;
@@ -107,6 +120,21 @@
 
     .track-list {
       color: white;
+      align-items: center;
+      
+      .track-name {
+        
+        input {
+          width: 90%;
+          margin-left: 1rem;
+          outline: none;
+          border: none;
+          background: $oc-gray-7;
+          height: 1.5rem;
+          font-size: 1rem;
+          color: white;
+        }
+      }
     }
     
     

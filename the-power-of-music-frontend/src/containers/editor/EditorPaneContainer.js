@@ -6,6 +6,11 @@ import EditorPane from 'components/editor/EditorPane';
 
 class EditorPaneContainer extends Component {
 
+    initialize = () => {
+        const {  EditorActions } = this.props;
+        EditorActions.initialize();
+    }
+
     handleChangeInput = ({name, value}) => {
         const { EditorActions } = this.props;
         EditorActions.changeInput({name, value});
@@ -20,9 +25,31 @@ class EditorPaneContainer extends Component {
         const { EditorActions } = this.props;
         EditorActions.changeCoverFile({fileName});
     }
+
+    handleAjaxUpload = (formData, config) => {
+        const { EditorActions } = this.props;
+        EditorActions.ajaxUpload(formData, config);
+    }
+
+    handleAjaxCoverUpload = (formData, config) => {
+        const { EditorActions } = this.props;
+        EditorActions.ajaxCoverUpload(formData, config);
+    }
+
+
     render() {
-        const {title, markdown, tags, trackFile, coverFile} = this.props;
-        const { handleChangeInput, handleChangeFile, handleCoverFile } = this;
+        const {title, 
+                markdown,
+                tags, 
+                trackFile, 
+                coverFile, 
+                artist} = this.props;
+        const { handleChangeInput,
+                 handleChangeFile, 
+                 handleCoverFile, 
+                 handleAjaxUpload,
+                handleAjaxCoverUpload } = this;
+        
         return (
             <EditorPane
                 title={title}
@@ -30,9 +57,13 @@ class EditorPaneContainer extends Component {
                 tags={tags}
                 trackFile={trackFile}
                 coverFile={coverFile}
+                artist={artist}
                 onChangeInput={handleChangeInput}
                 onChangeFile={handleChangeFile}
-                onChangeCover={handleCoverFile}/>
+                onChangeCover={handleCoverFile}
+                onAjaxUpload={handleAjaxUpload}
+                onAjaxCoverUpload={handleAjaxCoverUpload}
+                />
         );
     }
 }
@@ -48,7 +79,8 @@ export default connect((state) => ({
         .editor
         .get('tags'),
     trackFile: state.editor.get('trackFile'),
-    coverFile: state.editor.get('coverFile')
+    coverFile: state.editor.get('coverFile'),
+    artist: state.editor.get('artist'),
 }), (dispatch) => ({
     EditorActions: bindActionCreators(editorActions, dispatch)
 }))(EditorPaneContainer);

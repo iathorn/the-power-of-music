@@ -37,6 +37,10 @@ class MarkdownRender extends Component {
     });
   }
 
+  componentDidMount() {
+    Prism.highlightAll();
+  }
+
   componentWillMount() {
     this.renderMarkdown();
   }
