@@ -42,8 +42,10 @@ mongoose.connect(mongoURI).then(() => {
 
 app.use('/uploads', express.static(path.join(__dirname, './uploads')));
 app.use('/api', api);
-
-
+app.use(express.static(path.join(__dirname, '../../the-power-of-music-frontend/build')));
+app.get('*', function(req,res){
+    res.sendFile(path.join(__dirname, '../../the-power-of-music-frontend/build/index.html'));
+  });
 
 
 
