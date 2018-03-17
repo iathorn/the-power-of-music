@@ -34,7 +34,8 @@ class EditorPane extends Component {
   state = {
     list: [],
     trackListVisible: true,
-    cover: []
+    cover: [],
+    propCoverList: []
   }
 
   initializeEditor = () => {
@@ -48,10 +49,13 @@ class EditorPane extends Component {
   }
 
 
+
+
   componentDidMount() {
     this.initializeEditor();
-   
     
+
+   
   }
 
   handleChange = (e) => {
@@ -72,18 +76,18 @@ class EditorPane extends Component {
 
   handleFileChange = (e) => {
     const { onChangeFile, onAjaxUpload } = this.props;
-    const { list } = this.state;
-    if(e.target.files[0]) {
-      this.setState({
-        list: list.concat({
-          id: this.id++,
-          name: e.target.files[0].name
-        })
+    // const { list } = this.state;
+    // if(e.target.files[0]) {
+    //   this.setState({
+    //     list: list.concat({
+    //       id: this.id++,
+    //       name: e.target.files[0].name
+    //     })
         
-      });
-    } else {
-      return;
-    }
+    //   });
+    // } else {
+    //   return;
+    // }
     
     onChangeFile({
       fileName: e.target.files[0].name
@@ -148,23 +152,50 @@ class EditorPane extends Component {
     });
   }
 
-  handleTrackListRemove = (e, id) => {
-    const { list } = this.state;
-    const { onAjaxRemove } = this.props;
-    this.setState({
-      list: list.filter(list => list.id !== parseInt(e.target.id, 10))
-    });
+  handleTrackListRemove = (e) => {
+    // const { list } = this.state;
+    const { onAjaxRemoveTrack, onRemoveTrack, uploadedTrackList } = this.props;
 
-    // onAjaxRemove(parseInt(e.target.id, 10));
+    if(parseInt(e.target.getAttribute('index'), 10) + 1 === document.getElementsByName('track-name').length) {
+      onAjaxRemoveTrack(uploadedTrackList.toJS()[parseInt(e.target.getAttribute('index'), 10)]);
+      onRemoveTrack({key: e.target.getAttribute('index')});
+      console.log("here1");
+    } else if(parseInt(e.target.getAttribute('index'), 10) === 0){
+      onAjaxRemoveTrack(uploadedTrackList.toJS()[parseInt(e.target.getAttribute('index'), 10)]);
+      const receivedName = [];
+      for(var i = 0;i < document.getElementsByName('track-name').length - 1;i++){
+        receivedName.push(document.getElementsByName('track-name')[i + 1].value);
+        console.log(receivedName);
+      }
+      onRemoveTrack({key: e.target.getAttribute('index')});
+      for(var j = 0;j < document.getElementsByName('track-name').length;j++){
+        document.getElementsByName('track-name')[j].value = receivedName[j];
+      }
+      
+
+    } else {
+      onAjaxRemoveTrack(uploadedTrackList.toJS()[parseInt(e.target.getAttribute('index'), 10)]);
+      const receivedName = document.getElementsByName('track-name')[parseInt(e.target.getAttribute('index'), 10) + 1].value;
+      console.log(receivedName);
+      onRemoveTrack({key: e.target.getAttribute('index')});
+      document.getElementsByName('track-name')[parseInt(e.target.getAttribute('index'), 10)].value = receivedName;
+      console.log("here2");
+    }
+
+    
+
 
     
   }
   
   handleCoverRemove = (e, id) => {
     const { cover } = this.state;
+    const { onRemoveCover,  onAjaxRemoveCover, uploadedCover } = this.props;
     this.setState({
       cover: cover.filter(cover => cover.id !== parseInt(e.target.id, 10))
     });
+    onAjaxRemoveCover(uploadedCover);
+    onRemoveCover();
     console.log(e.target.id);
   }
 
@@ -181,7 +212,23 @@ class EditorPane extends Component {
       codeMirror.setCursor(cursor);
     }
 
+    // if(prevProps.uploadedCover !== this.props.uploadedCover) {
+    //   this.setState({
+    //     propCoverList: this.state.propCoverList.concat({
+    //       id: 0,
+    //       name: this.props.uploadedCover
+    //     })
+    //   });
+    //   console.log("hihi");
+    // }
+
+   
+
   }
+
+
+
+  
   render() {
     const { handleChange, 
             handleFileChange,
@@ -191,8 +238,13 @@ class EditorPane extends Component {
             handleCoverRemove
              } = this;
     const { list, trackListVisible, cover } = this.state;
-    const { title, tags, trackList, artist, uploadedTrackList } = this.props;
+    const propCoverList = [];
 
+    const { title, tags, trackList, artist, uploadedTrackList, id, uploadedCover, preloadedTrackList} = this.props;
+
+    
+             
+    
     const trackListVisibleStyle = {
       display: "block"
     };
@@ -206,14 +258,52 @@ class EditorPane extends Component {
         return (<div className={cx('track-list')}
                       key={i}
                       id={track.id}
+                      index={i}
                       >
                 {i + 1}: {track.name}
-                {/* <Button id={track.id} theme="gray" onClick={handleTrackListRemove}>&#x2715;</Button> */}
+                <Button id={track.id} index={i} theme="gray" onClick={handleTrackListRemove}>&#x2715;</Button>
                 <div className={cx('track-name')}>
                   <input type="text" name="track-name" placeholder="트랙 이름을 작성해주세요."/>
                 </div>
                </div>);
       });
+    }
+
+    const mapToUploadedTrackList = (trackList) => {
+      return trackList.map((track, i) => {
+        return (
+          <div className={cx('track-list')}
+            key={i}
+            >
+            {i + 1}: <input type="text" 
+                            ref={ref => this.name = ref}
+                            className={cx('track-name')}
+                             name="track-name" 
+                             
+                             placeholder="트랙 이름을 작성해주세요."/>
+            <Button index={i} theme="gray" onClick={handleTrackListRemove}>&#x2715;</Button>
+          </div>
+        )
+      })
+    }
+
+
+    const mapToPreloaded = (preloaded) => {
+      return preloaded.map((track, i) => {
+        return (
+          <div className={cx('track-list')}
+            key={i}
+            >
+            {i + 1}: <input type="text" 
+                            ref={ref => this.name = ref}
+                            className={cx('track-name')}
+                             name="track-name" 
+                             value={track.name}
+                             placeholder="트랙 이름을 작성해주세요."/>
+            <Button index={i} theme="gray" onClick={handleTrackListRemove}>&#x2715;</Button>
+          </div>
+        )
+      })
     }
 
     const mapToCoverList = coverList => {
@@ -222,10 +312,11 @@ class EditorPane extends Component {
                     key={i}
                     id={cover.id}>
                     {cover.name}
-                {/* <Button id={cover.id} theme="gray" onClick={handleCoverRemove}>&#x2715;</Button> */}
+                <Button id={cover.id} theme="gray" onClick={handleCoverRemove}>&#x2715;</Button>
               </div>)
       })
     }
+
 
     
 
@@ -284,7 +375,10 @@ class EditorPane extends Component {
             </label>
             <div className={cx('track-list')}>
             {
-              mapToCoverList(cover)
+              id && (uploadedCover !== "") ? mapToCoverList([{
+                id: 0,
+                name: uploadedCover
+              }]) : mapToCoverList(cover)
             }
             
             </div>
@@ -294,7 +388,9 @@ class EditorPane extends Component {
           </div>
           <div id="button-wrapper" className={cx('button-wrapper')}>
             <label className={cx('input-track-label')}>
-            클릭하여 트랙 파일을 첨부해주세요.
+            {
+              id ? "클릭하여 트랙 파일을 첨부해주세요.(수정 화면일시, 모든 트랙파일을 초기화합니다.)" : "클릭하여 트랙 파일을 첨부해주세요."
+            }
             <input 
               type="file" 
               name="track" 
@@ -303,8 +399,11 @@ class EditorPane extends Component {
               onChange={handleFileChange}/>
             </label>
             <div className={cx('track-list')}>
-            {
+            {/* {
               mapToTrackList(list)
+            } */}
+            {
+              uploadedTrackList.length !== 0 && mapToUploadedTrackList(uploadedTrackList)
             }
             </div>
           </div>

@@ -22,8 +22,11 @@ router.get('/', postCtrl.list);
 router.get('/:id', postCtrl.checkObjectId, postCtrl.read);
 router.post('/', postCtrl.checkLogin, postCtrl.write);
 router.post('/ajax', postCtrl.checkLogin, upload.any(), postCtrl.ajaxUpload);
+router.delete('/ajax/:track', postCtrl.checkLogin, postCtrl.ajaxRemove);
 router.post('/ajaxCover', postCtrl.checkLogin, upload.any(), postCtrl.ajaxCoverUpload);
+router.delete('/ajaxCover/:cover', postCtrl.checkLogin, postCtrl.ajaxCoverRemove);
 router.patch('/:id', postCtrl.checkLogin, postCtrl.checkObjectId, postCtrl.update);
 router.delete('/:id', postCtrl.checkLogin, postCtrl.checkObjectId, postCtrl.remove);
+router.post('/removeAjaxCover/:cover', postCtrl.removeAjaxCover);
 
 module.exports = router;

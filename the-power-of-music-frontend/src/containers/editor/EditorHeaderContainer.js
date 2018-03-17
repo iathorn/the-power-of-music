@@ -32,7 +32,8 @@ class EditorHeaderContainer extends Component {
                 history, 
                 uploadedTrackList, 
                 uploadedCover,
-                artist } = this.props;
+                artist,
+                location } = this.props;
         const { EditorActions } = this.props;
         const trackNameArray = [];
         const trackCount = document.getElementsByName('track-name').length;
@@ -54,6 +55,12 @@ class EditorHeaderContainer extends Component {
 
 
         try {
+            const { id } = queryString.parse(location.search);
+            if(id) {
+                await EditorActions.editPost({id, ...post});
+                history.push(`/post/${id}`);
+                return;
+            }
             await EditorActions.writePost(post);
             history.push(`/post/${this.props.postId}`)
         } catch(e){
@@ -65,11 +72,12 @@ class EditorHeaderContainer extends Component {
 
  render() {
      const { handleGoBack, handleSubmit } = this;
+     const { id } = queryString.parse(this.props.location.search);
    return (
     <EditorHeader
         onGoBack={handleGoBack}
         onSubmit={handleSubmit}
-        onTest={this.handleTest}/>
+        isEdit={id ? true : false}/>
    );
  }
 }

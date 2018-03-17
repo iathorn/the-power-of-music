@@ -1,5 +1,7 @@
 const Post = require('models/post');
 const Joi = require('joi');
+const fs = require('fs');
+const path = require('path');
 
 
 
@@ -121,25 +123,49 @@ exports.write = async (req, res) => {
     
 }
 
+
 exports.ajaxUpload = async (req, res) => {
     return res.json(req.files);
 
 }
 
+exports.ajaxRemove = async (req, res) => {
+    const { track } = req.params;
+    await fs.unlinkSync(path.join(__dirname, `../../uploads/${track}`));
+}
+
+
 exports.ajaxCoverUpload = async (req, res) => {
     return res.json(req.files);
 }
 
+exports.ajaxCoverRemove = async(req, res) => {
+    const { cover } = req.params;
+    await fs.unlinkSync(path.join(__dirname, `../../uploads/${cover}`));
+}
+
 exports.update = async (req, res) => {
     const { id } = req.params; 
+    const { title, body, uploadedCover, artist, trackName, uploadedTrackList, tags } = req.body;
+    
     try {
-        const post = await Post.findByIdAndUpdate(id, req.body, {
+        const post = await Post.findByIdAndUpdate(id, {
+        title,
+        body,
+        cover: uploadedCover,
+        artist,
+        list: {
+            name: trackName,
+            track: uploadedTrackList
+        },
+        tags
+        }, {
             new: true
         }).exec();
         if(!post) {
             return res.status(404);
         }
-        res.json(post);
+        return res.json(post);
     } catch(e){
         console.error(e);
         return res.status(500);
@@ -148,8 +174,15 @@ exports.update = async (req, res) => {
 }
 
 exports.remove = async (req, res) => {
+    
     const { id } = req.params;
     try {
+        const post = await Post.findById(id).exec();
+      
+        for(let track of post.list.track) {
+            await fs.unlinkSync(path.join(__dirname, `../../uploads/${track}`));
+        }
+        await fs.unlinkSync(path.join(__dirname, `../../uploads/${post.cover}`))
         await Post.findByIdAndRemove(id).exec();
         res.status(204);
         return res.json({
@@ -159,4 +192,11 @@ exports.remove = async (req, res) => {
         console.error(e);
         return res.status(500);
     }
+}
+
+exports.removeAjaxCover = (req, res) => {
+    console.log(req.params);
+    return res.json({
+        success: true
+    });
 }

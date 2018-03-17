@@ -3,6 +3,8 @@ import {bindActionCreators} from 'redux';
 import {connect} from 'react-redux';
 import * as editorActions from 'store/modules/editor';
 import EditorPane from 'components/editor/EditorPane';
+import queryString from 'query-string';
+import { withRouter } from 'react-router-dom';
 
 class EditorPaneContainer extends Component {
 
@@ -10,6 +12,8 @@ class EditorPaneContainer extends Component {
         const {  EditorActions } = this.props;
         EditorActions.initialize();
     }
+
+  
 
     handleChangeInput = ({name, value}) => {
         const { EditorActions } = this.props;
@@ -20,10 +24,20 @@ class EditorPaneContainer extends Component {
         const { EditorActions } = this.props;
         EditorActions.changeTrackFile({fileName});
     }
+    
+    handleRemoveTrack = ({key}) => {
+        const { EditorActions } = this.props;
+        EditorActions.removeTrack({key});
+    }
 
     handleCoverFile = ({fileName}) => {
         const { EditorActions } = this.props;
         EditorActions.changeCoverFile({fileName});
+    }
+
+    handleRemoveCoverFile = () => {
+        const { EditorActions } = this.props;
+        EditorActions.removeCover();
     }
 
     handleAjaxUpload = (formData, config) => {
@@ -36,6 +50,24 @@ class EditorPaneContainer extends Component {
         EditorActions.ajaxCoverUpload(formData, config);
     }
 
+    handleRemoveAjaxCover = (cover) => {
+        const { EditorActions } = this.props;
+        EditorActions.removeAjaxCover(cover);
+    }
+
+
+
+
+
+    handleAjaxRemoveTrack = (track) => {
+        const { EditorActions } = this.props;
+        EditorActions.ajaxRemoveTrack(track);
+    }
+
+    handleAjaxRemoveCover = (cover) => {
+        const { EditorActions } = this.props;
+        EditorActions.ajaxRemoveCover(cover);
+    }
 
     render() {
         const {title, 
@@ -43,15 +75,26 @@ class EditorPaneContainer extends Component {
                 tags, 
                 trackFile, 
                 coverFile, 
-                artist} = this.props;
+                artist,
+                uploadedCover,
+                location,
+                uploadedTrackList,
+            preloadedTrackList} = this.props;
+        const { id } = queryString.parse(location.search);
         const { handleChangeInput,
                  handleChangeFile, 
                  handleCoverFile, 
                  handleAjaxUpload,
-                handleAjaxCoverUpload } = this;
+                handleAjaxCoverUpload,
+                handleRemoveCoverFile,
+                handleRemoveTrack,
+            handleRemoveAjaxCover,
+        handleAjaxRemoveCover,
+    handleAjaxRemoveTrack } = this;
         
         return (
             <EditorPane
+                id={id}
                 title={title}
                 markdown={markdown}
                 tags={tags}
@@ -63,6 +106,14 @@ class EditorPaneContainer extends Component {
                 onChangeCover={handleCoverFile}
                 onAjaxUpload={handleAjaxUpload}
                 onAjaxCoverUpload={handleAjaxCoverUpload}
+                onRemoveCover={handleRemoveCoverFile}
+                onRemoveTrack={handleRemoveTrack}
+                onRemoveAjaxCover={handleRemoveAjaxCover}
+                uploadedCover={uploadedCover}
+                uploadedTrackList={uploadedTrackList}
+                preloadedTrackList={preloadedTrackList}
+                onAjaxRemoveTrack={handleAjaxRemoveTrack}
+                onAjaxRemoveCover={handleAjaxRemoveCover}
                 />
         );
     }
@@ -81,6 +132,9 @@ export default connect((state) => ({
     trackFile: state.editor.get('trackFile'),
     coverFile: state.editor.get('coverFile'),
     artist: state.editor.get('artist'),
+    uploadedCover: state.editor.get('uploadedCover'),
+    uploadedTrackList: state.editor.get('uploadedTrackList'),
+    preloadedTrackList: state.editor.get('preloadedTrackList')
 }), (dispatch) => ({
     EditorActions: bindActionCreators(editorActions, dispatch)
-}))(EditorPaneContainer);
+}))(withRouter(EditorPaneContainer));

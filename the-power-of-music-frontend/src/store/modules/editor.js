@@ -13,7 +13,12 @@ const CHANGE_COVER_FILE = 'editor/CHANGE_COVER_FILE';
 const AJAX_UPLOAD = 'editor/AJAX_UPLOAD';
 const AJAX_COVER_UPLOAD = 'editor/AJAX_COVER_UPLOAD';
 const GET_POST = 'editor/GET_POST';
-
+const REMOVE_COVER = 'editor/REMOVE_COVER';
+const REMOVE_TRACK = 'editor/REMOVE_TRACK';
+const REMOVE_AJAX_COVER = 'editor/REMOVE_AJAX_COVER';
+const EDIT_POST = 'editor/EDIT_POST';
+const AJAX_REMOVE_TRACK = 'editor/AJAX_REMOVE_TRACK';
+const AJAX_REMOVE_COVER = 'editor/AJAX_REMOVE_COVER';
 // action creator
 export const initialize = createAction(INITIALIZE);
 export const changeInput = createAction(CHANGE_INPUT);
@@ -23,6 +28,13 @@ export const changeCoverFile = createAction(CHANGE_COVER_FILE);
 export const ajaxUpload = createAction(AJAX_UPLOAD, api.ajaxUpload);
 export const ajaxCoverUpload = createAction(AJAX_COVER_UPLOAD, api.ajaxCoverUpload);
 export const getPost = createAction(GET_POST, api.getPost);
+export const removeCover = createAction(REMOVE_COVER);
+export const removeTrack = createAction(REMOVE_TRACK);
+export const removeAjaxCover = createAction(REMOVE_AJAX_COVER, api.removeAjaxCover);
+export const editPost = createAction(EDIT_POST, api.editPost);
+export const ajaxRemoveTrack = createAction(AJAX_REMOVE_TRACK, api.ajaxRemoveTrack);
+export const ajaxRemoveCover = createAction(AJAX_REMOVE_COVER, api.ajaxRemoveCover);
+
 // initial state
 const initialState = Map({
     title: '',
@@ -33,7 +45,8 @@ const initialState = Map({
     coverFile: '',
     uploadedTrackList: List(),
     uploadedCover: '',
-    artist: ''
+    artist: '',
+    preloadedTrackList: List()
 });
 
 // reducer
@@ -50,6 +63,16 @@ export default handleActions({
     [CHANGE_COVER_FILE]: (state, action) => {
         const { fileName } = action.payload;
         return state.set('coverFile', fileName);
+    },
+    [REMOVE_COVER]: (state, action) => {
+        return state.set('coverFile', '')
+                    .set('uploadedCover', '');
+    },
+    [REMOVE_TRACK]: (state, action) => {
+        console.log(action.payload);
+        const { key } = action.payload;
+        return state.update('uploadedTrackList', 
+            uploadedTrackList => uploadedTrackList.splice(parseInt(key, 10), 1));
     },
     ...pender({
         type: WRITE_POST,
@@ -77,11 +100,19 @@ export default handleActions({
         type: GET_POST,
         onSuccess: (state, action) => {
             const { list, tags, title, body, cover, artist } = action.payload.data;
-            return state.set('uploadedTrackList', list)
+            const preloadedTrackList = [];
+            for(var i = 0;i < list.name.length;i++){
+                preloadedTrackList.push({
+                    name: list.name[i],
+                    track: list.track[i]
+                });
+            }
+            console.log(preloadedTrackList);
+            return state.set('uploadedTrackList', initialState.get('uploadedTrackList'))
                         .set('tags', tags.join(', '))
                         .set('title', title)
                         .set('markdown', body)
-                        .set('cover', cover)
+                        .set('uploadedCover', cover)
                         .set('artist', artist);
         }
     })
