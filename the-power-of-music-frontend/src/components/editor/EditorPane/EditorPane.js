@@ -88,10 +88,16 @@ class EditorPane extends Component {
     // } else {
     //   return;
     // }
+
+    if(e.target.files[0]) {
+      onChangeFile({
+        fileName: e.target.files[0].name
+      });
+    } else {
+      return;
+    }
     
-    onChangeFile({
-      fileName: e.target.files[0].name
-    });
+    
 
     const formData = new FormData();
     formData.append('track', e.target.files[0]);
