@@ -112,12 +112,16 @@
                 .played {
                     background: black;
                     width: 0%;
-                    height: 1.6rem;
+                    height: 2.2rem;
                     z-index: 2;
 
-                    @include media(">wide") {
+                    
+
+                    @include media("<wide") {
                         height: 2.2rem;
                     }
+
+                   
 
                     @include media("<medium") {
                         height: 2.1rem;
